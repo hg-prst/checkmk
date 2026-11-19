@@ -1,4 +1,4 @@
-# checkmk-file-hash
+# File hash over HTTP(s)
 
 Checkmk **2.4** extensiepakket (MKP) met een **active check** die op de Checkmk-server
 draait: de server downloadt één of meer bestanden via HTTP(S), berekent de hash
@@ -23,7 +23,7 @@ Performance data: `size` (bytes) en `duration` (seconden).
 
 ## Installatie
 
-Download `file_hash_check-1.0.0.mkp` (zie `dist/` of de Releases).
+Download `file_hash_check-1.0.1.mkp` (zie `dist/` of de Releases).
 
 ### Via de GUI (Enterprise/Cloud-editie)
 
@@ -36,13 +36,13 @@ Download `file_hash_check-1.0.0.mkp` (zie `dist/` of de Releases).
 ```bash
 # als site-gebruiker
 su - <sitenaam>
-mkp add /tmp/file_hash_check-1.0.0.mkp
-mkp enable file_hash_check 1.0.0
+mkp add /tmp/file_hash_check-1.0.1.mkp
+mkp enable file_hash_check 1.0.1
 mkp list
 cmk -R        # of: Activate changes in de GUI
 ```
 
-Verwijderen: `mkp disable file_hash_check 1.0.0` en daarna `mkp remove file_hash_check 1.0.0`.
+Verwijderen: `mkp disable file_hash_check 1.0.1` en daarna `mkp remove file_hash_check 1.0.1`.
 
 Na installatie staan de bestanden in
 `~/local/lib/python3/cmk_addons/plugins/file_hash/`:
@@ -56,7 +56,7 @@ file_hash/
 
 ## Configuratie in de GUI
 
-**Setup > Services > HTTP, TCP, email, ... > Check file hash**
+**Setup > Services > HTTP, TCP, email, ... > File hash over HTTP(s)**
 
 (Of zoek in het Setup-menu op "file hash".)
 
@@ -116,6 +116,8 @@ echo "exit code: $?"
 
 ## Ontwikkeling
 
+Bron staat in `file-hash-over-http/` in de root van deze repository.
+
 ```
 src/file_hash/          # inhoud van het MKP-deel "cmk_addons_plugins"
 build_mkp.py            # bouwt dist/file_hash_check-<versie>.mkp
@@ -125,8 +127,8 @@ tests/                  # tests
 Bouwen (alleen Python 3 standaardbibliotheek):
 
 ```bash
-python3 build_mkp.py                 # -> dist/file_hash_check-1.0.0.mkp
-python3 build_mkp.py --version 1.0.1
+python3 build_mkp.py                 # -> dist/file_hash_check-1.0.1.mkp
+python3 build_mkp.py --version 1.0.2
 ```
 
 Testen:

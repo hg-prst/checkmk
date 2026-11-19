@@ -72,7 +72,7 @@ class TestAgainstCmk24(unittest.TestCase):
     def test_manifest(self):
         m = self.manifest
         self.assertIsInstance(m, Manifest)
-        self.assertEqual((m.name, str(m.version)), ("file_hash_check", "1.0.0"))
+        self.assertEqual((m.name, str(m.version)), ("file_hash_check", "1.0.1"))
         self.assertEqual(m.version_min_required, "2.4.0")
         with tarfile.open(self.mkp, "r:gz") as tgz:
             self.assertEqual(sorted(tgz.getnames()),

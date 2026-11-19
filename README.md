@@ -8,7 +8,7 @@ Elk project staat in een eigen map in de root van deze repository.
 
 | Project | Beschrijving | CheckMK | Map |
 |---|---|---|---|
-| file-hash-check | Active check die bestanden via HTTP(S) downloadt en de hash (MD5, SHA-1, SHA-256 of SHA-512) verifieert. | 2.4+ | [file-hash-check](file-hash-check/) |
+| File hash over HTTP(s) | Active check die bestanden via HTTP(S) downloadt en de hash (MD5, SHA-1, SHA-256 of SHA-512) verifieert. | 2.4+ | [file-hash-over-http](file-hash-over-http/) |
 
 ## Installatie
 
