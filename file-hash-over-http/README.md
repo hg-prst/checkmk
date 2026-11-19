@@ -116,6 +116,8 @@ echo "exit code: $?"
 
 ## Ontwikkeling
 
+Bron staat in `file-hash-over-http/` in de root van deze repository.
+
 ```
 src/file_hash/          # inhoud van het MKP-deel "cmk_addons_plugins"
 build_mkp.py            # bouwt dist/file_hash_check-<versie>.mkp
