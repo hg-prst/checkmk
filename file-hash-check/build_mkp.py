@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2026 Hugo (hg-prst) - License: MIT
+# Copyright (C) 2026 Hugo Proost - License: MIT
 """Build the Checkmk extension package (.mkp) from this source tree.
 
 Layout of an MKP (Checkmk 2.4, see cmk/mkp_tool/_mkp.py):
@@ -24,18 +24,18 @@ ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "src"  # == content of cmk_addons_plugins part
 
 MANIFEST = {
-    "title": "File hash check (active check)",
+    "title": "File hash over HTTP(s)",
     "name": "file_hash_check",
     "description": (
         "Active check that runs on the Checkmk server: downloads one or more files over "
         "HTTP(S) and verifies their MD5/SHA-1/SHA-256/SHA-512 hash against an expected "
-        "value. Configure via Setup > Services > HTTP, TCP, email, ... > Check file hash."
+        "value. Configure via Setup > Services > HTTP, TCP, email, ... > File hash over HTTP(s)."
     ),
-    "version": "1.0.0",
+    "version": "1.0.1",
     "version.packaged": "2.4.0",
     "version.min_required": "2.4.0",
     "version.usable_until": None,
-    "author": "Hugo (hg-prst)",
+    "author": "Hugo Proost (h.proost@iubentium.nl)",
     "download_url": "https://github.com/hg-prst/checkmk/tree/main/file-hash-check",
 }
 

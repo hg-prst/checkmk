@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Copyright (C) 2026 Hugo (hg-prst) - License: MIT
-"""Turns the 'Check file hash' rule into one active check command per file.
+# Copyright (C) 2026 Hugo Proost - License: MIT
+"""Turns the 'File hash over HTTP(s)' rule into one active check command per file.
 
 Checkmk 2.4 looks for the executable 'check_file_hash' in
   1. ../../libexec relative to this file (cmk_addons/plugins/file_hash/libexec/)
