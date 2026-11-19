@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""End-to-end test of libexec/check_file_hash against a local http.server.
+"""End-to-end test of libexec/check_file_hash_over_http against a local http.server.
 
-Run:  python3 tests/test_check_file_hash.py   (stdlib only)
+Run:  python3 tests/test_check_file_hash_over_http.py   (stdlib only)
 """
 
 import functools
@@ -14,7 +14,10 @@ import threading
 import unittest
 from pathlib import Path
 
-CHECK = Path(__file__).resolve().parents[1] / "src/file_hash/libexec/check_file_hash"
+CHECK = (
+    Path(__file__).resolve().parents[1]
+    / "src/file_hash_over_http/libexec/check_file_hash_over_http"
+)
 CONTENT = b"Hallo Checkmk!\n" * 100_000  # ~1.5 MB, streamed in chunks
 
 
@@ -23,7 +26,7 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-class CheckFileHashTest(unittest.TestCase):
+class CheckFileHashOverHttpTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
@@ -74,6 +77,12 @@ class CheckFileHashTest(unittest.TestCase):
         rc, out = self.run_check("--url", "http://127.0.0.1:1/x", "--expected", "0" * 64,
                                  "--timeout", "3")
         self.assertEqual(rc, 2, out)
+
+    def test_help_names_the_program(self):
+        proc = subprocess.run([str(CHECK), "--help"], capture_output=True, text=True, timeout=30)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("usage: check_file_hash_over_http", proc.stdout)
+        self.assertIn("Download a file over HTTP(S) and verify its hash.", proc.stdout)
 
     def test_bad_arguments(self):
         for args in ([], ["--url", f"{self.base}/file.bin"],

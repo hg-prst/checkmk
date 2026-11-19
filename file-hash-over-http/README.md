@@ -4,7 +4,7 @@ Checkmk **2.4** extensiepakket (MKP) met een **active check** die op de Checkmk-
 draait: de server downloadt één of meer bestanden via HTTP(S), berekent de hash
 (MD5, SHA-1, SHA-256 of SHA-512) en vergelijkt die met de verwachte waarde.
 
-Per bestand wordt één service aangemaakt: `File hash <naam of URL>`.
+Per bestand wordt één service aangemaakt: `File hash over HTTP(s) <naam of URL>`.
 
 | Situatie | Status |
 |---|---|
@@ -21,9 +21,30 @@ Performance data: `size` (bytes) en `duration` (seconden).
 - Gebruikt de nieuwe plug-in-API's `cmk.rulesets.v1` en `cmk.server_side_calls.v1`.
 - Het check-script gebruikt alleen de Python 3 standaardbibliotheek.
 
+## Upgrade vanaf 1.0.1 of ouder
+
+De pakketnaam is gewijzigd van `file_hash_check` naar `file_hash_over_http`. Checkmk
+behandelt dat als een ander pakket en vervangt het oude pakket niet. Verwijder daarom
+eerst het oude pakket `file_hash_check`, en maak daarna de regels opnieuw aan onder
+de nieuwe ruleset.
+
+Via de command line, als site-gebruiker:
+
+```bash
+mkp disable file_hash_check 1.0.1
+mkp remove file_hash_check 1.0.1
+```
+
+Staat er in `mkp list` een andere versie, gebruik dan die versie. Via de GUI kan hetzelfde:
+**Setup > Maintenance > Extension packages** — pakket `file_hash_check` disablen en verwijderen.
+
+Installeer daarna versie 1.0.2 (zie hieronder) en maak de regels opnieuw via
+**Setup > Services > HTTP, TCP, email, ... > File hash over HTTP(s)**. Bestaande regels
+van de oude ruleset `file_hash` worden niet overgenomen.
+
 ## Installatie
 
-Download `file_hash_check-1.0.1.mkp` (zie `dist/` of de Releases).
+Download `file_hash_over_http-1.0.2.mkp` (zie `dist/` of de Releases).
 
 ### Via de GUI (Enterprise/Cloud-editie)
 
@@ -36,22 +57,22 @@ Download `file_hash_check-1.0.1.mkp` (zie `dist/` of de Releases).
 ```bash
 # als site-gebruiker
 su - <sitenaam>
-mkp add /tmp/file_hash_check-1.0.1.mkp
-mkp enable file_hash_check 1.0.1
+mkp add /tmp/file_hash_over_http-1.0.2.mkp
+mkp enable file_hash_over_http 1.0.2
 mkp list
 cmk -R        # of: Activate changes in de GUI
 ```
 
-Verwijderen: `mkp disable file_hash_check 1.0.1` en daarna `mkp remove file_hash_check 1.0.1`.
+Verwijderen: `mkp disable file_hash_over_http 1.0.2` en daarna `mkp remove file_hash_over_http 1.0.2`.
 
 Na installatie staan de bestanden in
-`~/local/lib/python3/cmk_addons/plugins/file_hash/`:
+`~/local/lib/python3/cmk_addons/plugins/file_hash_over_http/`:
 
 ```
-file_hash/
-├── libexec/check_file_hash            # het check-script (uitvoerbaar)
-├── rulesets/file_hash.py              # GUI-regel
-└── server_side_calls/file_hash.py     # vertaling regel -> commando's
+file_hash_over_http/
+├── libexec/check_file_hash_over_http          # het check-script (uitvoerbaar)
+├── rulesets/file_hash_over_http.py            # GUI-regel
+└── server_side_calls/file_hash_over_http.py   # vertaling regel -> commando's
 ```
 
 ## Configuratie in de GUI
@@ -68,8 +89,8 @@ file_hash/
    - **URL of the file**: `http://` of `https://`
    - **Hash algorithm**: MD5, SHA-1, SHA-256 (standaard) of SHA-512
    - **Expected hash**: de hexadecimale hash (hoofdletters/kleine letters maakt niet uit)
-   - **Service name** (optioneel): de service heet dan `File hash <naam>`, anders
-     `File hash <URL>`
+   - **Service name** (optioneel): de service heet dan `File hash over HTTP(s) <naam>`, anders
+     `File hash over HTTP(s) <URL>`
 3. Algemene opties voor alle bestanden in de regel:
    - **Timeout**: netwerk-timeout per bestand (standaard 30 s)
    - **TLS certificate verification**: certificaat controleren (standaard aan)
@@ -106,7 +127,7 @@ curl -fsSL https://voorbeeld.be/bestand.iso | sha256sum
 Als site-gebruiker op de Checkmk-server:
 
 ```bash
-~/local/lib/python3/cmk_addons/plugins/file_hash/libexec/check_file_hash \
+~/local/lib/python3/cmk_addons/plugins/file_hash_over_http/libexec/check_file_hash_over_http \
     --url https://voorbeeld.be/bestand.iso \
     --algorithm sha256 \
     --expected <hash> \
@@ -119,23 +140,23 @@ echo "exit code: $?"
 Bron staat in `file-hash-over-http/` in de root van deze repository.
 
 ```
-src/file_hash/          # inhoud van het MKP-deel "cmk_addons_plugins"
-build_mkp.py            # bouwt dist/file_hash_check-<versie>.mkp
-tests/                  # tests
+src/file_hash_over_http/  # inhoud van het MKP-deel "cmk_addons_plugins"
+build_mkp.py                # bouwt dist/file_hash_over_http-<versie>.mkp
+tests/                      # tests
 ```
 
 Bouwen (alleen Python 3 standaardbibliotheek):
 
 ```bash
-python3 build_mkp.py                 # -> dist/file_hash_check-1.0.1.mkp
-python3 build_mkp.py --version 1.0.2
+python3 build_mkp.py                 # -> dist/file_hash_over_http-1.0.2.mkp
+python3 build_mkp.py --version 1.0.3
 ```
 
 Testen:
 
 ```bash
 # check-script tegen een lokale http.server (match, mismatch, 404, foute argumenten)
-python3 tests/test_check_file_hash.py
+python3 tests/test_check_file_hash_over_http.py
 
 # plug-ins en MKP valideren tegen de Checkmk 2.4-broncode (vereist pydantic)
 git clone --depth 1 --branch 2.4.0 https://github.com/Checkmk/checkmk.git /tmp/cmk
