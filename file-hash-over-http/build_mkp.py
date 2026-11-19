@@ -35,7 +35,7 @@ MANIFEST = {
     "version.packaged": "2.4.0",
     "version.min_required": "2.4.0",
     "version.usable_until": None,
-    "author": "Hugo Proost (h.proost@iubentium.nl)",
+    "author": "Hugo Proost (h.proost[at]iubentium[dot]nl)",
     "download_url": "https://github.com/hg-prst/checkmk/tree/main/file-hash-over-http",
 }
 
