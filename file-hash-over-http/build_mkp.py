@@ -25,17 +25,17 @@ SRC = ROOT / "src"  # == content of cmk_addons_plugins part
 
 MANIFEST = {
     "title": "File hash over HTTP(s)",
-    "name": "file_hash_check",
+    "name": "file_hash_over_http",
     "description": (
         "Active check that runs on the Checkmk server: downloads one or more files over "
         "HTTP(S) and verifies their MD5/SHA-1/SHA-256/SHA-512 hash against an expected "
         "value. Configure via Setup > Services > HTTP, TCP, email, ... > File hash over HTTP(s)."
     ),
-    "version": "1.0.1",
+    "version": "1.0.2",
     "version.packaged": "2.4.0",
     "version.min_required": "2.4.0",
     "version.usable_until": None,
-    "author": "Hugo Proost (h.proost@iubentium.nl)",
+    "author": "Hugo Proost (h.proost[at]iubentium[dot]nl)",
     "download_url": "https://github.com/hg-prst/checkmk/tree/main/file-hash-over-http",
 }
 
