@@ -36,7 +36,7 @@ MANIFEST = {
     "version.min_required": "2.4.0",
     "version.usable_until": None,
     "author": "Hugo Proost (h.proost@iubentium.nl)",
-    "download_url": "https://github.com/hg-prst/checkmk/tree/main/file-hash-check",
+    "download_url": "https://github.com/hg-prst/checkmk/tree/main/file-hash-over-http",
 }
 
 PART = "cmk_addons_plugins"
