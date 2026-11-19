@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Copyright (C) 2026 Hugo (hg-prst) - License: MIT
-"""GUI rule (Setup > Services > HTTP, TCP, email, ... > Check file hash) for the file_hash active check."""
+# Copyright (C) 2026 Hugo Proost - License: MIT
+"""GUI rule (Setup > Services > HTTP, TCP, email, ... > File hash over HTTP(s)) for the file_hash active check."""
 
 from cmk.rulesets.v1 import Help, Label, Title
 from cmk.rulesets.v1.form_specs import (
@@ -80,7 +80,7 @@ def _file_entry() -> Dictionary:
 
 def _form_spec() -> Dictionary:
     return Dictionary(
-        title=Title("Check file hash"),
+        title=Title("File hash over HTTP(s)"),
         help_text=Help(
             "Downloads one or more files from the Checkmk server and compares their hash "
             "(MD5/SHA-1/SHA-256/SHA-512) with the expected value. One service is created per file: "
@@ -122,7 +122,7 @@ def _form_spec() -> Dictionary:
 
 rule_spec_file_hash = ActiveCheck(
     name="file_hash",
-    title=Title("Check file hash"),
+    title=Title("File hash over HTTP(s)"),
     topic=Topic.APPLICATIONS,
     parameter_form=_form_spec,
 )
