@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (C) 2026 Hugo Proost - License: MIT
-"""check_file_hash - Nagios/Checkmk active check.
+"""check_file_hash_over_http - Nagios/Checkmk active check.
 
 Downloads a file over HTTP(S), computes its hash and compares it with the
 expected value.  Python 3 standard library only.
@@ -22,7 +22,7 @@ OK, WARN, CRIT, UNKNOWN = 0, 1, 2, 3
 STATE_NAMES = {OK: "OK", WARN: "WARN", CRIT: "CRIT", UNKNOWN: "UNKNOWN"}
 ALGORITHMS = {"md5": 32, "sha1": 40, "sha256": 64, "sha512": 128}  # expected hex length
 CHUNK_SIZE = 1024 * 1024
-USER_AGENT = "checkmk-check_file_hash/1.0.1"
+USER_AGENT = "checkmk-check_file_hash_over_http/1.0.2"
 
 
 class ArgumentError(Exception):
@@ -35,7 +35,10 @@ class _Parser(argparse.ArgumentParser):
 
 
 def parse_arguments(argv: list[str]) -> argparse.Namespace:
-    parser = _Parser(description="Download a file and verify its hash.")
+    parser = _Parser(
+        prog="check_file_hash_over_http",
+        description="Download a file over HTTP(S) and verify its hash.",
+    )
     parser.add_argument("--url", required=True, help="HTTP(S) URL of the file")
     parser.add_argument(
         "--algorithm", default="sha256", choices=sorted(ALGORITHMS), help="hash algorithm"

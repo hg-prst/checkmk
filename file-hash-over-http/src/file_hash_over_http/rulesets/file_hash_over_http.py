@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (C) 2026 Hugo Proost - License: MIT
-"""GUI rule (Setup > Services > HTTP, TCP, email, ... > File hash over HTTP(s)) for the file_hash active check."""
+"""GUI rule (Setup > Services > HTTP, TCP, email, ... > File hash over HTTP(s)) for the file_hash_over_http active check."""
 
 from cmk.rulesets.v1 import Help, Label, Title
 from cmk.rulesets.v1.form_specs import (
@@ -68,8 +68,8 @@ def _file_entry() -> Dictionary:
                 parameter_form=String(
                     title=Title("Service name"),
                     help_text=Help(
-                        "Optional. The service will be called 'File hash <name>'. "
-                        "If not set, the URL is used."
+                        "Optional. The service will be called 'File hash over HTTP(s) <name>'. "
+                        "If not set, the service is called 'File hash over HTTP(s) <URL>'."
                     ),
                     custom_validate=(validators.LengthInRange(min_value=1),),
                 ),
@@ -83,7 +83,8 @@ def _form_spec() -> Dictionary:
         title=Title("File hash over HTTP(s)"),
         help_text=Help(
             "Downloads one or more files from the Checkmk server and compares their hash "
-            "(MD5/SHA-1/SHA-256/SHA-512) with the expected value. One service is created per file: "
+            "(MD5/SHA-1/SHA-256/SHA-512) with the expected value. One service is created per file, "
+            "named 'File hash over HTTP(s) <name or URL>': "
             "OK if the hash matches, CRIT on mismatch or download error."
         ),
         elements={
@@ -120,8 +121,8 @@ def _form_spec() -> Dictionary:
     )
 
 
-rule_spec_file_hash = ActiveCheck(
-    name="file_hash",
+rule_spec_file_hash_over_http = ActiveCheck(
+    name="file_hash_over_http",
     title=Title("File hash over HTTP(s)"),
     topic=Topic.APPLICATIONS,
     parameter_form=_form_spec,

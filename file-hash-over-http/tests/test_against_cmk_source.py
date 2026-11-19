@@ -72,7 +72,7 @@ class TestAgainstCmk24(unittest.TestCase):
     def test_manifest(self):
         m = self.manifest
         self.assertIsInstance(m, Manifest)
-        self.assertEqual((m.name, str(m.version)), ("file_hash_check", "1.0.1"))
+        self.assertEqual((m.name, str(m.version)), ("file_hash_over_http", "1.0.2"))
         self.assertEqual(m.version_min_required, "2.4.0")
         with tarfile.open(self.mkp, "r:gz") as tgz:
             self.assertEqual(sorted(tgz.getnames()),
@@ -81,15 +81,17 @@ class TestAgainstCmk24(unittest.TestCase):
         self.assertEqual(json_manifest, m)
 
     def test_executable_bit_after_install(self):
-        exe = self.plugins_dir / "file_hash/libexec/check_file_hash"
+        exe = self.plugins_dir / "file_hash_over_http/libexec/check_file_hash_over_http"
         self.assertTrue(exe.stat().st_mode & stat.S_IXUSR, oct(exe.stat().st_mode))
 
     def test_ruleset_discovery_and_form(self):
-        mod = importlib.import_module("cmk_addons.plugins.file_hash.rulesets.file_hash")
+        mod = importlib.import_module(
+            "cmk_addons.plugins.file_hash_over_http.rulesets.file_hash_over_http"
+        )
         found = _discovered(mod, rs_prefixes())
-        self.assertEqual(list(found), ["rule_spec_file_hash"])
-        rs = found["rule_spec_file_hash"]
-        self.assertEqual(rs.name, "file_hash")
+        self.assertEqual(list(found), ["rule_spec_file_hash_over_http"])
+        rs = found["rule_spec_file_hash_over_http"]
+        self.assertEqual(rs.name, "file_hash_over_http")
         form = rs.parameter_form()
         self.assertEqual(set(form.elements), {"files", "timeout", "verify_tls"})
         entry = form.elements["files"].parameter_form.element_template
@@ -101,11 +103,13 @@ class TestAgainstCmk24(unittest.TestCase):
             url_validator("ftp://example.com/a.iso")
 
     def test_ssc_discovery_and_commands(self):
-        mod = importlib.import_module("cmk_addons.plugins.file_hash.server_side_calls.file_hash")
+        mod = importlib.import_module(
+            "cmk_addons.plugins.file_hash_over_http.server_side_calls.file_hash_over_http"
+        )
         found = _discovered(mod, ssc_prefixes())
-        self.assertEqual(list(found), ["active_check_file_hash"])
-        ac = found["active_check_file_hash"]
-        self.assertEqual(ac.name, "file_hash")  # -> executable check_file_hash
+        self.assertEqual(list(found), ["active_check_file_hash_over_http"])
+        ac = found["active_check_file_hash_over_http"]
+        self.assertEqual(ac.name, "file_hash_over_http")  # -> executable check_file_hash_over_http
 
         # Checkmk 2.4 executable lookup (cmk/discover_plugins/_libexec.py)
         # (same logic as family_libexec_dir: <module dir>/../libexec)
@@ -128,7 +132,8 @@ class TestAgainstCmk24(unittest.TestCase):
         cmds = list(ac(params, host))
         self.assertTrue(all(isinstance(c, ActiveCheckCommand) for c in cmds))
         self.assertEqual([c.service_description for c in cmds],
-                         ["File hash https://example.com/a.iso", "File hash Firmware B"])
+                         ["File hash over HTTP(s) https://example.com/a.iso",
+                          "File hash over HTTP(s) Firmware B"])
         self.assertEqual(list(cmds[1].command_arguments),
                          ["--url", "http://cmk-server/b.bin", "--algorithm", "md5",
                           "--expected", "cd" * 16, "--timeout", "12.5", "--no-verify-tls"])
@@ -151,18 +156,26 @@ class TestAgainstCmk24(unittest.TestCase):
         )
 
         for group, prefixes, expected in (
-            (PluginGroup.RULESETS, rs_prefixes(), "rule_spec_file_hash"),
-            (PluginGroup.SERVER_SIDE_CALLS, ssc_prefixes(), "active_check_file_hash"),
+            (PluginGroup.RULESETS, rs_prefixes(), "rule_spec_file_hash_over_http"),
+            (PluginGroup.SERVER_SIDE_CALLS, ssc_prefixes(), "active_check_file_hash_over_http"),
         ):
-            mods = [m for m in discover_modules(group, raise_errors=False) if ".file_hash." in m]
+            mods = [
+                m for m in discover_modules(group, raise_errors=False)
+                if ".file_hash_over_http." in m
+            ]
             self.assertEqual(len(mods), 1, mods)
             res = discover_plugins_from_modules(prefixes, mods, raise_errors=True)
             self.assertEqual(res.errors, [])
             self.assertEqual([loc.name for loc in res.plugins], [expected])
             if group is PluginGroup.SERVER_SIDE_CALLS:
                 (loc,) = res.plugins
-                exe = discover_executable("check_file_hash", family_libexec_dir(loc.module))
-                self.assertEqual(exe, self.plugins_dir / "file_hash/libexec/check_file_hash")
+                exe = discover_executable(
+                    "check_file_hash_over_http", family_libexec_dir(loc.module)
+                )
+                self.assertEqual(
+                    exe,
+                    self.plugins_dir / "file_hash_over_http/libexec/check_file_hash_over_http",
+                )
 
 
 if __name__ == "__main__":

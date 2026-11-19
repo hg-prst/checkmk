@@ -2,8 +2,8 @@
 # Copyright (C) 2026 Hugo Proost - License: MIT
 """Turns the 'File hash over HTTP(s)' rule into one active check command per file.
 
-Checkmk 2.4 looks for the executable 'check_file_hash' in
-  1. ../../libexec relative to this file (cmk_addons/plugins/file_hash/libexec/)
+Checkmk 2.4 looks for the executable 'check_file_hash_over_http' in
+  1. ../../libexec relative to this file (cmk_addons/plugins/file_hash_over_http/libexec/)
   2. ~/local/lib/nagios/plugins
   3. ~/lib/nagios/plugins
 """
@@ -61,7 +61,9 @@ def parse_params(raw: Mapping[str, object]) -> Params:
     )
 
 
-def commands_file_hash(params: Params, host_config: HostConfig) -> Iterable[ActiveCheckCommand]:
+def commands_file_hash_over_http(
+    params: Params, host_config: HostConfig
+) -> Iterable[ActiveCheckCommand]:
     for entry in params.files:
         url = replace_macros(entry.url, host_config.macros)
         label = replace_macros(entry.name, host_config.macros) if entry.name else url
@@ -77,11 +79,14 @@ def commands_file_hash(params: Params, host_config: HostConfig) -> Iterable[Acti
             args += ["--timeout", f"{params.timeout:g}"]
         if not params.verify_tls:
             args.append("--no-verify-tls")
-        yield ActiveCheckCommand(service_description=f"File hash {label}", command_arguments=args)
+        yield ActiveCheckCommand(
+            service_description=f"File hash over HTTP(s) {label}",
+            command_arguments=args,
+        )
 
 
-active_check_file_hash = ActiveCheckConfig(
-    name="file_hash",
+active_check_file_hash_over_http = ActiveCheckConfig(
+    name="file_hash_over_http",
     parameter_parser=parse_params,
-    commands_function=commands_file_hash,
+    commands_function=commands_file_hash_over_http,
 )
