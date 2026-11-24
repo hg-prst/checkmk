@@ -9,6 +9,7 @@ Elk project staat in een eigen map in de root van deze repository.
 | Project | Beschrijving | CheckMK | Map |
 |---|---|---|---|
 | File hash over HTTP(s) | Active check die bestanden via HTTP(S) downloadt en de hash (MD5, SHA-1, SHA-256 of SHA-512) verifieert. | 2.4+ | [file-hash-over-http](file-hash-over-http/) |
+| APC PDU Temperature and Humidity metrics (external) | SNMP-check voor externe temperatuur- en vochtigheidssensoren op APC rack-PDU's (PowerNet-MIB). | 2.4+ | [apc-pdu-ext-sensors](apc-pdu-ext-sensors/) |
 
 ## Installatie
 
