@@ -1,25 +1,25 @@
 # checkmk
 
-Verzameling CheckMK-extensies (MKP) van hg-prst.
+Collection of CheckMK extensions (MKP) by hg-prst.
 
-Elk project staat in een eigen map in de root van deze repository.
+Each project lives in its own directory at the root of this repository.
 
-## Projecten
+## Projects
 
-| Project | Beschrijving | CheckMK | Map |
+| Project | Description | CheckMK | Directory |
 |---|---|---|---|
-| File hash over HTTP(s) | Active check die bestanden via HTTP(S) downloadt en de hash (MD5, SHA-1, SHA-256 of SHA-512) verifieert. | 2.4+ | [file-hash-over-http](file-hash-over-http/) |
-| APC PDU Temperature and Humidity metrics (external) | SNMP-check `apc_rackpdu_ext_env` voor externe temperatuur- en vochtigheidssensoren op APC rack-PDU's (PowerNet-MIB). Services heten standaard `Temperature Ext Sensor #N` en `Humidity Ext Sensor #N`. | 2.4+ | [apc-pdu-ext-sensors](apc-pdu-ext-sensors/) |
+| File hash over HTTP(s) | Active check that downloads files over HTTP(S) and verifies the hash (MD5, SHA-1, SHA-256 or SHA-512). | 2.4+ | [file-hash-over-http](file-hash-over-http/) |
+| APC PDU Temperature and Humidity metrics (external) | SNMP check `apc_rackpdu_ext_env` for external temperature and humidity sensors on APC rack PDUs (PowerNet-MIB). Services are called `Temperature Ext Sensor #N` and `Humidity Ext Sensor #N` by default. | 2.4+ | [apc-pdu-ext-sensors](apc-pdu-ext-sensors/) |
 
-## Installatie
+## Installation
 
-Een pakket installeer je in Checkmk via **Setup > Maintenance > Extension packages**: upload het `.mkp`-bestand, zet het pakket op enabled en activeer de wijzigingen.
+Install a package in Checkmk via **Setup > Maintenance > Extension packages**: upload the `.mkp` file, set the package to enabled and activate the changes.
 
-Op de command line, als site-gebruiker:
+On the command line, as the site user:
 
 ```bash
-mkp add /pad/naar/pakket.mkp
-mkp enable <naam> <versie>
+mkp add /path/to/package.mkp
+mkp enable <name> <version>
 ```
 
-Details per extensie staan in de README van het project.
+Details for each extension are in the project's README.
