@@ -27,14 +27,12 @@ MANIFEST = {
     "title": "APC PDU Temperature and Humidity metrics (external)",
     "name": "apc_pdu_ext_sensors",
     "description": (
-        "SNMP check for external temperature and humidity sensors on APC (Schneider) rack PDUs "
-        "(PowerNet-MIB rPDU2SensorTempHumidityStatusTable). Discovers one Temperature and one "
-        "Humidity service per present sensor, with per-item names, a multiplication factor and "
-        "upper/lower levels. Configure via Setup > Service discovery rules > "
-        "APC PDU external sensor names, and Setup > Services > Service monitoring rules > "
-        "APC PDU external temperature / humidity."
+        "SNMP check apc_rackpdu_ext_env for external temperature and humidity sensors on APC "
+        "(Schneider) rack PDUs (PowerNet-MIB rPDU2SensorTempHumidityStatusTable). One check "
+        "discovers Temperature Ext Sensor #N and Humidity Ext Sensor #N, with a discovery name "
+        "per sensor number and one ruleset for upper/lower levels and factors of both metrics."
     ),
-    "version": "1.0.0",
+    "version": "1.1.0",
     "version.packaged": "2.4.0",
     "version.min_required": "2.4.0",
     "version.usable_until": None,

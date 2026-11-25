@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 # Copyright (C) 2026 Hugo Proost - License: MIT
-"""Graphing notes for the APC PDU external sensor checks.
+"""Graphing notes for check apc_rackpdu_ext_env.
 
-The checks publish Checkmk's builtin metrics ``temp`` (°C) and ``humidity`` (%).
+The check publishes Checkmk's builtin metrics ``temp`` (°C) and ``humidity`` (%).
 Those already have a unit, a color, a graph and a perfometer.
 
 Do not register ``metric_`` / ``graph_`` / ``perfometer_`` objects for those names
-from this package:
-
-* an API metric replaces the builtin metric of the same name for the whole site
-* an API perfometer is tried before the builtin perfometer, so a perfometer on
-  ``temp`` alone would become the perfometer of every temperature service
-* an extra graph that only contains ``temp`` is shown on every temperature service
-
-The objects below document the units the builtin metrics already provide. Their
-Python names deliberately do not use the discovery prefixes.
+from this package. An API metric replaces the builtin metric site-wide, and an
+API perfometer is tried before the builtin one for every service that has the
+metric. The objects below only document the units. Their Python names do not
+use the discovery prefixes.
 """
 
 from cmk.graphing.v1 import Title
@@ -37,27 +32,27 @@ HUMIDITY_METRIC = Metric(
 )
 
 TEMPERATURE_GRAPH = Graph(
-    name="apc_pdu_ext_temperature",
+    name="apc_rackpdu_ext_env_temperature",
     title=Title("Temperature"),
     minimal_range=MinimalRange(-10, 50),
     compound_lines=["temp"],
 )
 
 HUMIDITY_GRAPH = Graph(
-    name="apc_pdu_ext_humidity",
+    name="apc_rackpdu_ext_env_humidity",
     title=Title("Relative humidity"),
     minimal_range=MinimalRange(0, 100),
     compound_lines=["humidity"],
 )
 
 TEMPERATURE_PERFOMETER = Perfometer(
-    name="apc_pdu_ext_temperature",
+    name="apc_rackpdu_ext_env_temperature",
     focus_range=FocusRange(Open(-10), Open(50)),
     segments=["temp"],
 )
 
 HUMIDITY_PERFOMETER = Perfometer(
-    name="apc_pdu_ext_humidity",
+    name="apc_rackpdu_ext_env_humidity",
     focus_range=FocusRange(Closed(0), Closed(100)),
     segments=["humidity"],
 )
