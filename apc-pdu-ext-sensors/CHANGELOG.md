@@ -2,17 +2,17 @@
 
 ## 1.1.0
 
-- Eén checkplug-in `apc_rackpdu_ext_env` voor temperatuur en vochtigheid. De SNMP-sectie heet hetzelfde.
-- Standaardservicenaam is `Temperature Ext Sensor #N` en `Humidity Ext Sensor #N`. `#N` volgt de volgorde van de SNMP-index van aanwezige sensoren.
-- Eigen servicenaam per sensornummer `#N` in de discovery-regel. Die vervangt `Ext Sensor #N`; daarna is service discovery nodig.
-- Drempels (boven en onder) en de factor voor beide metrieken staan op één checkparameterpagina `apc_rackpdu_ext_env`. De naam hoort in een aparte discovery-regel; Checkmk 2.4 kan die twee niet in dezelfde ruleset zetten.
-- De samenvatting is `Current: 18.7 °C` en `Current: 29.0%`.
-- Upgrade vanaf 1.0.0: het pakket heet nog `apc_pdu_ext_sensors`, maar de check- en rulesetnamen zijn gewijzigd. Oude services verdwijnen na een nieuwe discovery en de oude regels (`apc_pdu_ext_temp`, `apc_pdu_ext_humidity`, `apc_pdu_ext_sensors`) worden niet overgenomen.
+- One check plug-in `apc_rackpdu_ext_env` for temperature and humidity. The SNMP section has the same name.
+- The default service name is `Temperature Ext Sensor #N` and `Humidity Ext Sensor #N`. `#N` follows the SNMP index order of sensors that are present.
+- A custom service name per sensor number `#N` in the discovery rule. That replaces `Ext Sensor #N`; service discovery is required afterwards.
+- Thresholds (upper and lower) and the factor for both metrics are on one check parameter page `apc_rackpdu_ext_env`. The name belongs in a separate discovery rule; Checkmk 2.4 cannot put those two in the same ruleset.
+- The summary is `Current: 18.7 °C` and `Current: 29.0%`.
+- Upgrade from 1.0.0: the package is still called `apc_pdu_ext_sensors`, but the check and ruleset names have changed. Old services disappear after a new discovery and the old rules (`apc_pdu_ext_temp`, `apc_pdu_ext_humidity`, `apc_pdu_ext_sensors`) are not carried over.
 
 ## 1.0.0
 
-- Eerste versie: SNMP-check voor externe temperatuur- en vochtigheidssensoren op APC rack-PDU's (PowerNet-MIB `rPDU2SensorTempHumidityStatusTable`).
-- Per aanwezige sensor een aparte service `Temperature <naam>` en, bij een gecombineerde sensor, `Humidity <naam>`.
-- Servicenaam via een discovery-regel; drempels (boven en onder) en vermenigvuldigingsfactor per item via de Setup-regels.
-- Temperatuur uit de MIB is in tienden van °C (schaal 0,1); vochtigheid is al procent. Factor standaard 1,0 komt daar bovenop.
-- Auteur van het MKP is Hugo Proost (h.proost[at]iubentium[dot]nl).
+- First version: SNMP check for external temperature and humidity sensors on APC rack PDUs (PowerNet-MIB `rPDU2SensorTempHumidityStatusTable`).
+- For each present sensor, a separate service `Temperature <name>` and, for a combined sensor, `Humidity <name>`.
+- Service name via a discovery rule; thresholds (upper and lower) and multiplication factor per item via the Setup rules.
+- Temperature from the MIB is in tenths of °C (scale 0.1); humidity is already percent. The default factor of 1.0 is applied on top of that.
+- Author of the MKP is Hugo Proost (h.proost[at]iubentium[dot]nl).

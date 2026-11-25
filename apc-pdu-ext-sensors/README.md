@@ -1,207 +1,207 @@
 # APC PDU Temperature and Humidity metrics (external)
 
-Checkmk **2.4** extensiepakket (MKP) `apc_pdu_ext_sensors` **1.1.0**. Het leest externe
-temperatuur- en vochtigheidssensoren op APC (Schneider) rack-PDU's uit via SNMP
+Checkmk **2.4** extension package (MKP) `apc_pdu_ext_sensors` **1.1.0**. It reads external
+temperature and humidity sensors on APC (Schneider) rack PDUs over SNMP
 (PowerNet-MIB `rPDU2SensorTempHumidityStatusTable`).
 
-Er is **één checkplug-in**, `apc_rackpdu_ext_env`. Temperatuur en vochtigheid zijn
-aparte services van die check, zodat drempels en de factor onafhankelijk blijven:
+There is **one check plug-in**, `apc_rackpdu_ext_env`. Temperature and humidity are
+separate services of that check, so the thresholds and the factor stay independent:
 
-| Service (standaard) | Metriek | Eenheid |
+| Service (default) | Metric | Unit |
 |---|---|---|
 | `Temperature Ext Sensor #N` | `temp` | °C |
 | `Humidity Ext Sensor #N` | `humidity` | % |
 
-`#N` is 1, 2, 3, … in de volgorde van de SNMP-index van sensoren die echt aanwezig
-zijn. De laagste index is `#1`. Een temperatuur-only sensor krijgt geen
-humidity-service, maar telt wel mee in de nummering. Rijen die niet geïnstalleerd
-zijn of waarvan de communicatie weg is, worden bij discovery overgeslagen.
+`#N` is 1, 2, 3, … in SNMP index order of sensors that are actually present.
+The lowest index is `#1`. A temperature-only sensor does not get a
+humidity service, but it still counts in the numbering. Rows that are not installed,
+or whose communication is down, are skipped during discovery.
 
-De plugin-output is `Current: 18.7 °C` of `Current: 29.0%`. Drempeltekst
-(`warn/crit at …` / `warn/crit below …`) volgt daarop wanneer de status niet OK is.
+The plug-in output is `Current: 18.7 °C` or `Current: 29.0%`. Threshold text
+(`warn/crit at …` / `warn/crit below …`) follows that when the status is not OK.
 
-De metrieken `temp` en `humidity` zijn de standaardmetrieken van Checkmk. Daardoor
-werken de ingebouwde grafiek en perfometer (graden Celsius en procent). Dit pakket
-definieert die metrieken niet opnieuw: dat zou de grafieken van alle andere
-temperatuur- en vochtigheidsservices op de site vervangen.
+The metrics `temp` and `humidity` are Checkmk's standard metrics. The built-in
+graph and perfometer (degrees Celsius and percent) therefore work. This package
+does not define those metrics again: that would replace the graphs of every other
+temperature and humidity service on the site.
 
-## Vereisten
+## Requirements
 
-- Checkmk 2.4.0 of nieuwer (alle edities, ook Raw/Community).
-- SNMP naar de PDU (de host moet als SNMP-host geconfigureerd zijn).
-- Plug-in-API's `cmk.agent_based.v2`, `cmk.rulesets.v1` en `cmk.graphing.v1`.
+- Checkmk 2.4.0 or newer (all editions, including Raw/Community).
+- SNMP to the PDU (the host must be configured as an SNMP host).
+- Plug-in APIs `cmk.agent_based.v2`, `cmk.rulesets.v1` and `cmk.graphing.v1`.
 
-Het pakket geldt alleen voor APC-PDU's:
+The package applies only to APC PDUs:
 
-- `sysObjectID` (`.1.3.6.1.2.1.1.2.0`) begint met `.1.3.6.1.4.1.318.1.3.4.5`
-  (PowerNet `products.system` voor rPDU2), of
-- `sysObjectID` begint met de APC-enterprise `.1.3.6.1.4.1.318` **en** `sysDescr`
-  bevat `rPDU` of `rack pdu` / `rack-pdu`.
+- `sysObjectID` (`.1.3.6.1.2.1.1.2.0`) starts with `.1.3.6.1.4.1.318.1.3.4.5`
+  (PowerNet `products.system` for rPDU2), or
+- `sysObjectID` starts with the APC enterprise `.1.3.6.1.4.1.318` **and** `sysDescr`
+  contains `rPDU` or `rack pdu` / `rack-pdu`.
 
-## Upgrade vanaf 1.0.0
+## Upgrade from 1.0.0
 
-Het pakket heet nog `apc_pdu_ext_sensors`, dus een installatie van 1.1.0 vervangt
-1.0.0. De checknaam is wel veranderd van `apc_pdu_ext_temp` / `apc_pdu_ext_humidity`
-naar `apc_rackpdu_ext_env`. Na **Activate changes** en een service discovery verdwijnen
-de oude services en verschijnen `Temperature Ext Sensor #N` en `Humidity Ext Sensor #N`.
+The package is still called `apc_pdu_ext_sensors`, so installing 1.1.0 replaces
+1.0.0. The check name did change, from `apc_pdu_ext_temp` / `apc_pdu_ext_humidity`
+to `apc_rackpdu_ext_env`. After **Activate changes** and a service discovery, the
+old services disappear and `Temperature Ext Sensor #N` and `Humidity Ext Sensor #N` appear.
 
-Oude regels onder `apc_pdu_ext_sensors`, `apc_pdu_ext_temp` en `apc_pdu_ext_humidity`
-worden niet overgenomen. Maak ze opnieuw aan zoals hieronder.
+Old rules under `apc_pdu_ext_sensors`, `apc_pdu_ext_temp` and `apc_pdu_ext_humidity`
+are not carried over. Create them again as described below.
 
-## Installatie
+## Installation
 
-Download `apc_pdu_ext_sensors-1.1.0.mkp` (zie `dist/`).
+Download `apc_pdu_ext_sensors-1.1.0.mkp` (see `dist/`).
 
-### Via de GUI (Enterprise/Cloud-editie)
+### Via the GUI (Enterprise/Cloud edition)
 
 1. **Setup > Maintenance > Extension packages**
-2. **Upload package**, kies het `.mkp`-bestand.
-3. Zorg dat het pakket **enabled** is en **activeer de wijzigingen**.
+2. **Upload package**, choose the `.mkp` file.
+3. Make sure the package is **enabled** and **activate the changes**.
 
-### Via de command line (alle edities, ook Raw)
+### Via the command line (all editions, including Raw)
 
 ```bash
-# als site-gebruiker
-su - <sitenaam>
+# as the site user
+su - <sitename>
 mkp add /tmp/apc_pdu_ext_sensors-1.1.0.mkp
 mkp enable apc_pdu_ext_sensors 1.1.0
 mkp list
 cmk -R
 ```
 
-Verwijderen: `mkp disable apc_pdu_ext_sensors 1.1.0` en daarna
+Removal: `mkp disable apc_pdu_ext_sensors 1.1.0` and then
 `mkp remove apc_pdu_ext_sensors 1.1.0`.
 
-Na installatie staan de bestanden in
+After installation the files are in
 `~/local/lib/python3/cmk_addons/plugins/apc_pdu_ext_sensors/`:
 
 ```
 apc_pdu_ext_sensors/
-├── agent_based/apc_rackpdu_ext_env.py   # SNMP-sectie en de check
-├── rulesets/apc_rackpdu_ext_env.py      # namen, drempels en factor
-└── graphing/apc_rackpdu_ext_env.py      # eenheden; gebruikt de ingebouwde grafieken
+├── agent_based/apc_rackpdu_ext_env.py   # SNMP section and the check
+├── rulesets/apc_rackpdu_ext_env.py      # names, thresholds and factor
+└── graphing/apc_rackpdu_ext_env.py      # units; uses the built-in graphs
 ```
 
-Daarna op de PDU-host een service discovery draaien.
+Then run a service discovery on the PDU host.
 
 ## OIDs
 
-Tabel `rPDU2SensorTempHumidityStatusTable`, entry
-`.1.3.6.1.4.1.318.1.1.26.10.2.2.1` (één rij per sensor). Bron: PowerNet-MIB 4.6.0.
+Table `rPDU2SensorTempHumidityStatusTable`, entry
+`.1.3.6.1.4.1.318.1.1.26.10.2.2.1` (one row per sensor). Source: PowerNet-MIB 4.6.0.
 
-| Kolom | Object | Betekenis |
+| Column | Object | Meaning |
 |---|---|---|
-| 1 | `...StatusIndex` | Index van de rij |
-| 2 | `...StatusModule` | Numeriek PDU-id |
-| 3 | `...StatusName` | Naam van de sensor, zoals op de PDU gezet |
-| 4 | `...StatusNumber` | Numeriek sensor-id op de PDU |
+| 1 | `...StatusIndex` | Index of the row |
+| 2 | `...StatusModule` | Numeric PDU id |
+| 3 | `...StatusName` | Name of the sensor, as set on the PDU |
+| 4 | `...StatusNumber` | Numeric sensor id on the PDU |
 | 5 | `...StatusType` | 1 temperature only, 2 temperature+humidity, 3 comms lost, 4 not installed |
 | 6 | `...StatusCommStatus` | 1 not installed, 2 comms OK, 3 comms lost |
-| 8 | `...StatusTempC` | Temperatuur in **tienden van °C** (243 = 24,3 °C) |
+| 8 | `...StatusTempC` | Temperature in **tenths of °C** (243 = 24.3 °C) |
 | 9 | `...StatusTempStatus` | 1 not present, 2 below min, 3 below low, 4 normal, 5 above high, 6 above max |
-| 10 | `...StatusRelativeHumidity` | Relatieve vochtigheid in **procent** |
-| 11 | `...StatusHumidityStatus` | Zelfde statussen als de temperatuur |
+| 10 | `...StatusRelativeHumidity` | Relative humidity in **percent** |
+| 11 | `...StatusHumidityStatus` | The same statuses as temperature |
 
-Kolom 7 is dezelfde sensor in tienden van °F en wordt niet gebruikt.
+Column 7 is the same sensor in tenths of °F and is not used.
 
-Discovery slaat een rij over wanneer de communicatiestatus niet `comms OK` is, het type
-`not installed` of `comms lost` is, of de betreffende meetwaarde `not present` is.
-Bestaat de service al en valt de sensor later weg, dan wordt de service **CRIT**
-(communicatie weg of niet geïnstalleerd) of **UNKNOWN** (rij of meetwaarde verdwenen).
+Discovery skips a row when the communication status is not `comms OK`, the type
+is `not installed` or `comms lost`, or the reading in question is `not present`.
+If the service already exists and the sensor later disappears, the service becomes **CRIT**
+(communication down or not installed) or **UNKNOWN** (row or reading gone).
 
-## Schaal en factor
+## Scale and factor
 
 ```
-waarde = ruwe SNMP-integer × MIB-schaal × factor
+value = raw SNMP integer × MIB scale × factor
 ```
 
-| Metriek | MIB-schaal | Factor 1,0 |
+| Metric | MIB scale | Factor 1.0 |
 |---|---|---|
-| Temperatuur | 0,1 (tienden °C) | ruw 243 → 24,3 °C |
-| Vochtigheid | 1 (procent) | ruw 45 → 45% |
+| Temperature | 0.1 (tenths of °C) | raw 243 → 24.3 °C |
+| Humidity | 1 (percent) | raw 45 → 45% |
 
-De factor staat standaard op **1,0** en is per metriek in te stellen. Hele graden in
-plaats van tienden: temperatuurfactor **10** (25 × 0,1 × 10 = 25). Vochtigheid in
-tienden van een procent: vochtigheidsfactor **0,1** (450 × 0,1 = 45). De
-service-details tonen ruwe waarde, schaal en factor.
+The factor defaults to **1.0** and can be set per metric. Whole degrees instead
+of tenths: temperature factor **10** (25 × 0.1 × 10 = 25). Humidity in
+tenths of a percent: humidity factor **0.1** (450 × 0.1 = 45). The
+service details show the raw value, the scale and the factor.
 
-## Configuratie in de GUI
+## Configuration in the GUI
 
-Checkmk 2.4 houdt discovery-parameters en checkparameters in aparte rulesets. De
-servicenaam wordt bij discovery vastgelegd; drempels worden pas bij de check gelezen.
-Daarom zijn er twee pagina's. Ze kunnen niet worden samengevoegd.
+Checkmk 2.4 keeps discovery parameters and check parameters in separate rulesets. The
+service name is fixed at discovery; thresholds are read only when the check runs.
+That is why there are two pages. They cannot be combined.
 
-### Servicenaam
+### Service name
 
 **Setup > Service discovery rules > APC rack PDU external sensor names**
 
-(Ruleset `apc_rackpdu_ext_env_discovery`, onderwerp Environmental.)
+(Ruleset `apc_rackpdu_ext_env_discovery`, topic Environmental.)
 
-Zonder regel:
+Without a rule:
 
 - `Temperature Ext Sensor #1`
 - `Humidity Ext Sensor #1`
 
-`#1` is de aanwezige sensor met de laagste SNMP-index, `#2` de volgende, enzovoort.
-Een gat in de index (1, 2, 5) wordt dus `#1`, `#2`, `#3`. Een sensor die later
-wegvalt of erbij komt met een lagere index hernummert de sensoren erna.
+`#1` is the present sensor with the lowest SNMP index, `#2` the next, and so on.
+A gap in the index (1, 2, 5) therefore becomes `#1`, `#2`, `#3`. A sensor that later
+disappears, or one that is added with a lower index, renumbers the sensors after it.
 
-**Add sensor name** voegt een tekstveld toe, gekoppeld aan dat nummer:
+**Add sensor name** adds a text field, tied to that number:
 
 - **Sensor number**: `#N`
-- **Service name**: vervangt `Ext Sensor #N`
+- **Service name**: replaces `Ext Sensor #N`
 
-Sensor 1 met tekst `Cold aisle` wordt:
+Sensor 1 with the text `Cold aisle` becomes:
 
 - `Temperature Cold aisle`
 - `Humidity Cold aisle`
 
-Het voorvoegsel `Temperature` / `Humidity` blijft staan, zodat de twee services van
-dezelfde sensor niet dezelfde naam krijgen. De eerste regel voor een nummer wint.
-Zet alle sensoren van een host in één regel.
+The prefix `Temperature` / `Humidity` stays, so the two services of the
+same sensor do not get the same name. The first rule for a number wins.
+Put every sensor of a host in one rule.
 
-**Daarna opnieuw service discovery doen.** Zonder discovery blijft de oude
-servicenaam staan. Het ontdekte SNMP-indexnummer blijft aan de service hangen.
+**Then run service discovery again.** Without discovery the old
+service name stays. The discovered SNMP index stays attached to the service.
 
-Checkmk kan in een ruleset geen tekstveld per live sensor uit de SNMP-walk
-genereren. Je voegt zelf een rij toe per nummer `#N`.
+Checkmk cannot generate a text field per live sensor from the SNMP walk
+inside a ruleset. You add a row yourself for each number `#N`.
 
-### Drempels en factor
+### Thresholds and factor
 
 **Setup > Services > Service monitoring rules > APC rack PDU external environment**
 
-Eén pagina (ruleset `apc_rackpdu_ext_env`) voor beide metrieken:
+One page (ruleset `apc_rackpdu_ext_env`) for both metrics:
 
-- boven- en onderdrempels temperatuur
-- factor temperatuur
-- boven- en onderdrempels vochtigheid
-- factor vochtigheid
+- upper and lower temperature thresholds
+- temperature factor
+- upper and lower humidity thresholds
+- humidity factor
 
-Een temperatuurservice leest alleen de temperatuurvelden, een vochtigheidsservice
-alleen de vochtigheidsvelden.
+A temperature service reads only the temperature fields; a humidity service
+reads only the humidity fields.
 
-Zonder regel:
+Without a rule:
 
-| Service | Boven (warn/crit) | Onder | Factor |
+| Service | Upper (warn/crit) | Lower | Factor |
 |---|---|---|---|
-| Temperature | 30 / 35 °C | geen | 1,0 |
-| Humidity | 70 / 80% | geen | 1,0 |
+| Temperature | 30 / 35 °C | none | 1.0 |
+| Humidity | 70 / 80% | none | 1.0 |
 
-De conditie **Service item** is een reguliere expressie op de service-item, en dat
-item is de volledige servicenaam. Voorbeelden:
+The **Service item** condition is a regular expression on the service item, and that
+item is the full service name. Examples:
 
-- `Temperature Ext Sensor #1` — alleen die temperatuurservice
-- `.*Ext Sensor #1` — temperatuur én vochtigheid van sensor 1
-- `.*Cold aisle` — beide services nadat sensor 1 zo hernoemd is
+- `Temperature Ext Sensor #1` — only that temperature service
+- `.*Ext Sensor #1` — temperature and humidity of sensor 1
+- `.*Cold aisle` — both services after sensor 1 has been renamed that way
 
-Laat de itemconditie leeg om de regel op alle sensoren van de gekozen hosts toe te
-passen. Checkmk vergelijkt de bovengrens met `>=` en de ondergrens met `<`. Exact
-30 °C bij bovengrens 30/35 is daardoor **WARN**.
+Leave the item condition empty to apply the rule to every sensor of the selected hosts.
+Checkmk compares the upper limit with `>=` and the lower limit with `<`. Exactly
+30 °C with an upper limit of 30/35 is therefore **WARN**.
 
-De grafiek toont de bovenste warn/crit-lijnen. De onderste drempels bepalen de
-status; Checkmk zet alleen de bovenste levels op de metriek.
+The graph shows the upper warn/crit lines. The lower thresholds determine the
+status; Checkmk only puts the upper levels on the metric.
 
-## Handmatig een sensor bekijken
+## Inspecting a sensor by hand
 
 ```bash
 snmpwalk -v2c -c <community> <pdu> .1.3.6.1.4.1.318.1.1.26.10.2.2.1
@@ -209,11 +209,11 @@ snmpget -v2c -c <community> <pdu> .1.3.6.1.4.1.318.1.1.26.10.2.2.1.8.1
 snmpget -v2c -c <community> <pdu> .1.3.6.1.4.1.318.1.1.26.10.2.2.1.10.1
 ```
 
-## Ontwikkeling
+## Development
 
 ```
-src/apc_pdu_ext_sensors/   # inhoud van het MKP-deel "cmk_addons_plugins"
-build_mkp.py               # bouwt dist/apc_pdu_ext_sensors-<versie>.mkp
+src/apc_pdu_ext_sensors/   # contents of the MKP part "cmk_addons_plugins"
+build_mkp.py               # builds dist/apc_pdu_ext_sensors-<version>.mkp
 tests/
 ```
 
@@ -229,6 +229,6 @@ CMK_SRC=/tmp/cmk python3 tests/test_apc_pdu_ext_sensors.py
 CMK_SRC=/tmp/cmk python3 tests/test_against_cmk_source.py
 ```
 
-## Licentie
+## License
 
-MIT, zie [LICENSE](../LICENSE).
+MIT, see [LICENSE](../LICENSE).
