@@ -67,7 +67,7 @@ class TestAgainstCmk24(unittest.TestCase):
     def test_manifest(self):
         manifest = self.manifest
         self.assertIsInstance(manifest, Manifest)
-        self.assertEqual((manifest.name, str(manifest.version)), ("apc_pdu_ext_sensors", "1.0.0"))
+        self.assertEqual((manifest.name, str(manifest.version)), ("apc_pdu_ext_sensors", "1.1.0"))
         self.assertEqual(manifest.version_min_required, "2.4.0")
         self.assertEqual(manifest.version_packaged, "2.4.0")
         self.assertIsNone(manifest.version_usable_until)
@@ -86,44 +86,52 @@ class TestAgainstCmk24(unittest.TestCase):
 
     def test_ruleset_discovery_and_forms(self):
         module = importlib.import_module(
-            "cmk_addons.plugins.apc_pdu_ext_sensors.rulesets.apc_pdu_ext_sensors"
+            "cmk_addons.plugins.apc_pdu_ext_sensors.rulesets.apc_rackpdu_ext_env"
         )
         found = _discovered(module, rs_prefixes())
         self.assertEqual(
             list(found),
             [
-                "rule_spec_apc_pdu_ext_sensors",
-                "rule_spec_apc_pdu_ext_temp",
-                "rule_spec_apc_pdu_ext_humidity",
+                "rule_spec_apc_rackpdu_ext_env_discovery",
+                "rule_spec_apc_rackpdu_ext_env",
             ],
         )
-        discovery = found["rule_spec_apc_pdu_ext_sensors"]
-        self.assertEqual(discovery.name, "apc_pdu_ext_sensors")
-        self.assertEqual(set(discovery.parameter_form().elements), {"aliases"})
+        discovery = found["rule_spec_apc_rackpdu_ext_env_discovery"]
+        self.assertEqual(discovery.name, "apc_rackpdu_ext_env_discovery")
+        self.assertEqual(set(discovery.parameter_form().elements), {"names"})
+        entry = discovery.parameter_form().elements["names"].parameter_form.element_template
+        self.assertEqual(set(entry.elements), {"number", "name"})
 
-        temperature = found["rule_spec_apc_pdu_ext_temp"]
-        humidity = found["rule_spec_apc_pdu_ext_humidity"]
-        self.assertEqual(temperature.name, "apc_pdu_ext_temp")
-        self.assertEqual(humidity.name, "apc_pdu_ext_humidity")
-        self.assertFalse(temperature.create_enforced_service)
-        self.assertFalse(humidity.create_enforced_service)
-        for ruleset, upper in (
-            (temperature, (30.0, 35.0)),
-            (humidity, (70.0, 80.0)),
-        ):
-            form = ruleset.parameter_form()
-            self.assertEqual(
-                set(form.elements),
-                {"levels_upper", "levels_lower", "factor", "sensor_index"},
-            )
-            self.assertEqual(form.elements["factor"].parameter_form.prefill.value, 1.0)
-            self.assertTrue(form.elements["sensor_index"].render_only)
-            upper_form = form.elements["levels_upper"].parameter_form
-            lower_form = form.elements["levels_lower"].parameter_form
-            self.assertEqual(upper_form.prefill_fixed_levels.value, upper)
-            self.assertEqual(upper_form.prefill_levels_type.value, LevelsType.FIXED)
-            self.assertEqual(lower_form.prefill_levels_type.value, LevelsType.NONE)
-            self.assertEqual(ruleset.condition.item_title.localize(lambda text: text), "Sensor")
+        check = found["rule_spec_apc_rackpdu_ext_env"]
+        self.assertEqual(check.name, "apc_rackpdu_ext_env")
+        self.assertFalse(check.create_enforced_service)
+        form = check.parameter_form()
+        self.assertEqual(
+            set(form.elements),
+            {
+                "temp_levels_upper",
+                "temp_levels_lower",
+                "temp_factor",
+                "humidity_levels_upper",
+                "humidity_levels_lower",
+                "humidity_factor",
+                "sensor_index",
+                "sensor_number",
+            },
+        )
+        self.assertEqual(form.elements["temp_factor"].parameter_form.prefill.value, 1.0)
+        self.assertEqual(form.elements["humidity_factor"].parameter_form.prefill.value, 1.0)
+        self.assertTrue(form.elements["sensor_index"].render_only)
+        upper = form.elements["temp_levels_upper"].parameter_form
+        lower = form.elements["humidity_levels_lower"].parameter_form
+        self.assertEqual(upper.prefill_fixed_levels.value, (30.0, 35.0))
+        self.assertEqual(upper.prefill_levels_type.value, LevelsType.FIXED)
+        self.assertEqual(lower.prefill_levels_type.value, LevelsType.NONE)
+        self.assertEqual(
+            form.elements["humidity_levels_upper"].parameter_form.prefill_fixed_levels.value,
+            (70.0, 80.0),
+        )
+        self.assertEqual(check.condition.item_title.localize(lambda text: text), "Service item")
 
     def test_real_checkmk_discovery(self):
         for group, prefixes, expected in (
@@ -131,18 +139,16 @@ class TestAgainstCmk24(unittest.TestCase):
                 PluginGroup.AGENT_BASED,
                 ab_prefixes(),
                 [
-                    "check_plugin_apc_pdu_ext_humidity",
-                    "check_plugin_apc_pdu_ext_temp",
-                    "snmp_section_apc_pdu_ext_sensors",
+                    "check_plugin_apc_rackpdu_ext_env",
+                    "snmp_section_apc_rackpdu_ext_env",
                 ],
             ),
             (
                 PluginGroup.RULESETS,
                 rs_prefixes(),
                 [
-                    "rule_spec_apc_pdu_ext_humidity",
-                    "rule_spec_apc_pdu_ext_sensors",
-                    "rule_spec_apc_pdu_ext_temp",
+                    "rule_spec_apc_rackpdu_ext_env",
+                    "rule_spec_apc_rackpdu_ext_env_discovery",
                 ],
             ),
             (PluginGroup.GRAPHING, graph_prefixes(), []),
@@ -150,8 +156,9 @@ class TestAgainstCmk24(unittest.TestCase):
             modules = [
                 name
                 for name in discover_modules(group, raise_errors=True)
-                if ".apc_pdu_ext_sensors." in name
+                if ".apc_pdu_ext_sensors." in name or name.endswith(".apc_rackpdu_ext_env")
             ]
+            # old module names must be gone; exactly the new module is loaded
             self.assertEqual(len(modules), 1, modules)
             discovered = discover_plugins_from_modules(prefixes, modules, raise_errors=True)
             self.assertEqual(discovered.errors, [])
